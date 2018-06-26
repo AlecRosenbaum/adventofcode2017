@@ -3,6 +3,7 @@ Day 5 challenge
 """
 import attr
 
+
 @attr.s
 class Graph(object):
     nodes = attr.ib(default=attr.Factory(dict))
@@ -16,6 +17,7 @@ class Graph(object):
 
 cached_cum_weights = {}
 
+
 @attr.s(frozen=True)
 class Node(object):
     name = attr.ib()
@@ -28,7 +30,9 @@ class Node(object):
 
     def cumulative_weight(self):
         if not getattr(cached_cum_weights, self.name, None):
-            cached_cum_weights[self.name] = self.weight + sum([i.cumulative_weight() for i in self.get_children()])
+            cached_cum_weights[self.name] = self.weight + sum(
+                [i.cumulative_weight() for i in self.get_children()]
+            )
         return cached_cum_weights[self.name]
 
 
@@ -38,20 +42,24 @@ def solution_part_one(arg):
         if "->" in line:
             root, children = line.split(" -> ")
             root_name, weight = root.split()
-            graph.add(Node(
-                name=root_name,
-                weight=int(weight.replace("(", "").replace(")", "")),
-                children=children.split(", "),
-                graph=graph
-            ))
+            graph.add(
+                Node(
+                    name=root_name,
+                    weight=int(weight.replace("(", "").replace(")", "")),
+                    children=children.split(", "),
+                    graph=graph,
+                )
+            )
         else:
             name, weight = line.split()
-            graph.add(Node(
-                name=name,
-                weight=int(weight.replace("(", "").replace(")", "")),
-                children=[],
-                graph=graph
-            ))
+            graph.add(
+                Node(
+                    name=name,
+                    weight=int(weight.replace("(", "").replace(")", "")),
+                    children=[],
+                    graph=graph,
+                )
+            )
 
     root_node = None
     for i in graph.nodes.values():
@@ -67,20 +75,24 @@ def solution_part_two(arg):
         if "->" in line:
             root, children = line.split(" -> ")
             root_name, weight = root.split()
-            graph.add(Node(
-                name=root_name,
-                weight=int(weight.replace("(", "").replace(")", "")),
-                children=children.split(", "),
-                graph=graph
-            ))
+            graph.add(
+                Node(
+                    name=root_name,
+                    weight=int(weight.replace("(", "").replace(")", "")),
+                    children=children.split(", "),
+                    graph=graph,
+                )
+            )
         else:
             name, weight = line.split()
-            graph.add(Node(
-                name=name,
-                weight=int(weight.replace("(", "").replace(")", "")),
-                children=[],
-                graph=graph
-            ))
+            graph.add(
+                Node(
+                    name=name,
+                    weight=int(weight.replace("(", "").replace(")", "")),
+                    children=[],
+                    graph=graph,
+                )
+            )
 
     root_node = None
     for i in graph.nodes.values():
@@ -90,19 +102,24 @@ def solution_part_two(arg):
     def recurse(node, parent_weights):
         weights = {}
         for child in node.get_children():
-            weights[child.cumulative_weight()] = weights.get(child.cumulative_weight(), []) + [child]
+            weights[child.cumulative_weight()] = weights.get(
+                child.cumulative_weight(), []
+            ) + [child]
         if len(weights.keys()) > 1:
             # unbalanced
             for k, v in weights.items():
                 if len(v) == 1:
                     return recurse(v[0], list(weights.keys()))
         else:
-            #balanced
+            # balanced
             val = node.cumulative_weight()
             parent_weights.remove(val)
             rem = parent_weights[0]
             return node.weight + (rem - val)
-    return recurse(root_node, list(set([i.cumulative_weight() for i in root_node.get_children()])))
+
+    return recurse(
+        root_node, list(set([i.cumulative_weight() for i in root_node.get_children()]))
+    )
 
 
 if __name__ == "__main__":
